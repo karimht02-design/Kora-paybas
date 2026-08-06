@@ -2,7 +2,7 @@ name: Build iOS Dylib
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -13,8 +13,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Theos
+    - name: Install dependencies
       run: |
+        brew install ldid dpkg
         git clone --recursive https://github.com/theos/theos.git $HOME/theos
         echo "THEOS=$HOME/theos" >> $GITHUB_ENV
 
