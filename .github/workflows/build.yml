@@ -1,0 +1,38 @@
+name: Build iOS Dylib
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Build dylib
+      run: |
+        xcrun --sdk iphoneos clang \
+          -arch arm64 -arch arm64e \
+          -shared -o kora_bypass.dylib \
+          kora_bypass.mm \
+          -framework Foundation \
+          -fobjc-arc -std=c++11 \
+          -fvisibility=hidden -O2 \
+          -Wl,-install_name,@executable_path/kora_bypass.dylib
+        
+        brew install ldid
+        ldid -S kora_bypass.dylib
+        
+        mkdir -p output
+        cp kora_bypass.dylib output/
+        file output/kora_bypass.dylib
+
+    - name: Upload dylib
+      uses: actions/upload-artifact@v4
+      with:
+        name: kora_bypass_dylib
+        path: output/kora_bypass.dylib
